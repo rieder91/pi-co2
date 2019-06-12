@@ -122,3 +122,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# we store the sgp30 sbaseline in this file
+baseline.data

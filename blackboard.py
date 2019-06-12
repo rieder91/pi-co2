@@ -39,7 +39,7 @@ class Blackboard:
             result = (6.112 * pow(math.e, (17.67 * temperature)/(temperature + 243.5)) * rhPercent * 2.1674) / (273.15 + temperature)
             return result
         else:
-            logging.warn("Need both temperature and rhPercent to calculate humidity in mg/m3")
+            logging.debug("Need both temperature and rhPercent to calculate humidity in mg/m3")
             return None
 
     def setTemperature(self, value):

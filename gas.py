@@ -3,10 +3,15 @@ import board
 import busio
 import logging
 import threading
+import os
+import pickle
 from adafruit_sgp30 import Adafruit_SGP30
 
 class GasReader:
+
     def __init__(self, blackboard):
+        self.__baseline_filename = "baseline.data"
+
         self.stop_requested = False
         self.stop_event = threading.Event()
 
@@ -33,15 +38,24 @@ class GasReader:
             logging.debug("eCO2 and TVOC measured")
             self.stop_event.wait(interval)
 
-    def set_baseline(self, interval=60*60):
+    def set_baseline(self, interval=60*10):
         logging.info("Starting baseline management at interval %s", interval)
 
-        # TODO read initial baseline from file
         eCO2_baseline, tvoc_baseline = None, None
+
+        # read initial baseline from file
+        if os.path.isfile(self.__baseline_filename):
+            with open(self.__baseline_filename, "rb") as f:
+                data = pickle.load(f)
+                if "co2" in data:
+                    eCO2_baseline = data.get("co2")
+                if "tvoc" in data:
+                    tvoc_baseline = data.get("tvoc")
+
         if eCO2_baseline is not None and tvoc_baseline is not None:
-            logging.debug("Read baseline from file")
+            logging.info("Read baseline from file")
         else:
-            logging.debug("No baseline found, using defaults")
+            logging.info("No baseline found, using defaults")
             eCO2_baseline = 0x8c2e
             tvoc_baseline = 0x8d90
 
@@ -49,10 +63,11 @@ class GasReader:
         self.sgp30.set_iaq_baseline(eCO2_baseline, tvoc_baseline)
 
         while not self.stop_requested:
-            new_eCO2_baseline, new_tvoc_baseline = self.sgp30.baseline_eCO2, self.sgp30.baseline_TVOC
-            if eCO2_baseline != new_eCO2_baseline or tvoc_baseline != new_tvoc_baseline:
-                # TODO write baseline to file
-                logging.debug("Saved baseline to file (0x%x, 0x%x)", new_eCO2_baseline, new_tvoc_baseline)
+            # write baseline to file
+            with open(self.__baseline_filename, "wb") as f:
+                co2, tvoc = self.sgp30.baseline_eCO2, self.sgp30.baseline_TVOC
+                pickle.dump({"co2": co2, "tvoc": tvoc}, f)
+                logging.debug("Saved baseline to file (0x%x, 0x%x)", co2, tvoc)
             self.stop_event.wait(interval)
 
     def calibrate(self, interval=60):
@@ -61,7 +76,7 @@ class GasReader:
         while not self.stop_requested:
             rhMg = self.blackboard.getHumidityInMg()
             if rhMg is None:
-                logging.info("No humidity reading, cannot calibrate gas sensor")
+                logging.info("No humidity reading (yet), cannot calibrate gas sensor")
             else:
                 # calibrate the gas sensor based on the humidity reading
                 self.sgp30.set_iaq_humidity(rhMg)
