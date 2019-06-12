@@ -20,7 +20,7 @@ class GasReader:
         logging.debug("SPG30 serial #" + str([hex(i) for i in self.sgp30.serial]))
 
     def stop(self):
-        logging.info("GasReader: Stop requested. Terminitating threads")
+        logging.info("GasReader: Stop requested. Terminating threads")
         self.stop_requested = True
         self.stop_event.set()
 
@@ -52,7 +52,7 @@ class GasReader:
             new_eCO2_baseline, new_tvoc_baseline = self.sgp30.baseline_eCO2, self.sgp30.baseline_TVOC
             if eCO2_baseline != new_eCO2_baseline or tvoc_baseline != new_tvoc_baseline:
                 # TODO write baseline to file
-                logging.debug("Saved baseline to file")
+                logging.debug("Saved baseline to file (0x%x, 0x%x)", new_eCO2_baseline, new_tvoc_baseline)
             self.stop_event.wait(interval)
 
     def calibrate(self, interval=60):
@@ -63,8 +63,9 @@ class GasReader:
             if rhMg is None:
                 logging.info("No humidity reading, cannot calibrate gas sensor")
             else:
-                # TODO calibrate the gas sensor based on the humidity reading (need to convert RH% to mg/m3)
-                logging.debug("Calibrated gas sensor based on humidity reading")
+                # calibrate the gas sensor based on the humidity reading
+                self.sgp30.set_iaq_humidity(rhMg)
+                logging.debug("Calibrated gas sensor based on humidity reading (%s)", rhMg)
                 
             self.stop_event.wait(interval)
         

@@ -2,22 +2,33 @@ import time
 import threading
 import signal
 import logging
+from argparse import ArgumentParser
 from blackboard import Blackboard
 from gas import GasReader
+from temp import TemperatureReader
 
 threads = []
+log_level = logging.INFO
+
+parser = ArgumentParser()
+parser.add_argument("-v", action="store_true")
+options = parser.parse_args()
+if options.v:
+    log_level = logging.DEBUG
+
 if __name__ == "__main__":
     format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.DEBUG, datefmt="%H:%M:%S")
+    logging.basicConfig(format=format, level=log_level, datefmt="%H:%M:%S")
 
     blackboard = Blackboard()
 
     gas = GasReader(blackboard)
-    # TODO temperature = TemperatureReader(blackboard)
+    temperature = TemperatureReader(blackboard)
 
     threads.append(threading.Thread(target=gas.measure, daemon=True))
     threads.append(threading.Thread(target=gas.set_baseline, daemon=True))
     threads.append(threading.Thread(target=gas.calibrate, daemon=True))
+    threads.append(threading.Thread(target=temperature.measure, daemon=True))
 
     for thread in threads:
         thread.start()

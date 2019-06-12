@@ -1,5 +1,6 @@
 from threading import Lock
 import logging
+import math
 
 class Blackboard:
     def __init__(self):
@@ -31,11 +32,18 @@ class Blackboard:
 
     def getHumidityInMg(self):
         rhPercent = self.storage.get("rhPercent")
-        if rhPercent is not None:
-            # TODO convert humidity from percent to mg/m3
-            return None
+        temperature = self.storage.get("temperature")
+
+        if rhPercent is not None and temperature is not None:
+            # formula taken from https://carnotcycle.wordpress.com/2012/08/04/how-to-convert-relative-humidity-to-absolute-humidity/
+            result = (6.112 * pow(math.e, (17.67 * temperature)/(temperature + 243.5)) * rhPercent * 2.1674) / (273.15 + temperature)
+            return result
         else:
+            logging.warn("Need both temperature and rhPercent to calculate humidity in mg/m3")
             return None
+
+    def setTemperature(self, value):
+        self.__set__("temperature", value)
 
     def dump(self):
         with self._lock:
