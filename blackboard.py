@@ -6,7 +6,7 @@ class Blackboard:
         self.storage = {}
         self._lock = Lock()
     
-    def set(self, key, value):
+    def __set__(self, key, value):
         with self._lock:
             self.storage[key] = value
         logging.debug("Set key '%s' to value '%s'" % (key, value))
@@ -15,22 +15,19 @@ class Blackboard:
         return self.storage.get(key)
 
     def setECO2(self, value):
-        with self._lock:
-            self.storage["eCO2"] = value
+        self.__set__("eCO2", value)
 
     def getECO2(self):
         return self.storage.get("eCO2")
 
     def setTVOC(self, value):
-        with self._lock:
-            self.storage["TVOC"] = value
+        self.__set__("TVOC", value)
 
     def getTVOC(self):
         return self.storage["TVOC"]
 
     def setHumidityInPercent(self, value):
-        with self._lock:
-            self.storage["rhPercent"] = value
+        self.__set__("rhPercent", value)
 
     def getHumidityInMg(self):
         rhPercent = self.storage.get("rhPercent")
