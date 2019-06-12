@@ -25,7 +25,7 @@ class Blackboard:
         self.__set__("TVOC", value)
 
     def getTVOC(self):
-        return self.storage["TVOC"]
+        return self.storage.get("TVOC")
 
     def setHumidityInPercent(self, value):
         self.__set__("rhPercent", value)
@@ -44,6 +44,12 @@ class Blackboard:
 
     def setTemperature(self, value):
         self.__set__("temperature", value)
+
+    def getTemperature(self):
+        return self.storage.get("temperature")
+
+    def getHumidityInPercent(self):
+        return self.storage.get("rhPercent")
 
     def dump(self):
         with self._lock:

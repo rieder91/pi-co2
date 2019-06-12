@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from blackboard import Blackboard
 from gas import GasReader
 from temp import TemperatureReader
+from exporter import PrometheusExporter
 
 threads = []
 log_level = logging.INFO
@@ -24,11 +25,15 @@ if __name__ == "__main__":
 
     gas = GasReader(blackboard)
     temperature = TemperatureReader(blackboard)
+    exporter = PrometheusExporter(blackboard)
 
     threads.append(threading.Thread(target=gas.measure, daemon=True))
     threads.append(threading.Thread(target=gas.set_baseline, daemon=True))
     threads.append(threading.Thread(target=gas.calibrate, daemon=True))
     threads.append(threading.Thread(target=temperature.measure, daemon=True))
+    threads.append(threading.Thread(target=exporter.fill_gauges, daemon=True))
+
+    exporter.start_prometheus_http_server()
 
     for thread in threads:
         thread.start()
