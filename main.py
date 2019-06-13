@@ -36,13 +36,15 @@ if __name__ == "__main__":
 
     for thread in threads:
         thread.start()
-    
+
+    # noinspection PyUnusedLocal
     def bail_out(*args):
         logging.info("Received SIGTERM")
         gas.stop()
         logging.info("All threads stopped. Exiting")
         raise SystemExit(0)
 
+    # noinspection PyTypeChecker
     signal.signal(signal.SIGTERM, bail_out)
 
     try:

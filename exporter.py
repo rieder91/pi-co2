@@ -1,5 +1,6 @@
 import threading
 import logging
+# noinspection PyProtectedMember
 from prometheus_client import Gauge, start_http_server
 
 
@@ -50,6 +51,7 @@ class PrometheusExporter:
 
             self.stop_event.wait(interval)
 
+    # noinspection PyMethodMayBeStatic
     def start_prometheus_http_server(self, port=8000):
         logging.info("Starting prometheus http server on port %s", port)
         start_http_server(port)
