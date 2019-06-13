@@ -1,9 +1,9 @@
-import time
 import board
 import busio
 import logging
 import threading
 from adafruit_htu21d import HTU21D
+
 
 class TemperatureReader:
     def __init__(self, blackboard):
@@ -25,7 +25,7 @@ class TemperatureReader:
         logging.info("Starting temperature and humidity measurements at interval %s", interval)
 
         while not self.stop_requested:
-            self.blackboard.setTemperature(self.htu21d.temperature)
-            self.blackboard.setHumidityInPercent(self.htu21d.relative_humidity)
+            self.blackboard.set_temperature(self.htu21d.temperature)
+            self.blackboard.set_humidity_in_percent(self.htu21d.relative_humidity)
             logging.debug("Temperature and relative humidity measured")
             self.stop_event.wait(interval)

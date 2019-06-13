@@ -1,4 +1,3 @@
-import time
 import board
 import busio
 import logging
@@ -6,6 +5,7 @@ import threading
 import os
 import pickle
 from adafruit_sgp30 import Adafruit_SGP30
+
 
 class GasReader:
 
@@ -33,34 +33,34 @@ class GasReader:
         logging.info("Starting gas measurements at interval %s", interval)
 
         while not self.stop_requested:
-            self.blackboard.setECO2(self.sgp30.eCO2)
-            self.blackboard.setTVOC(self.sgp30.TVOC)
+            self.blackboard.set_eco2(self.sgp30.eCO2)
+            self.blackboard.set_tvoc(self.sgp30.TVOC)
             logging.debug("eCO2 and TVOC measured")
             self.stop_event.wait(interval)
 
     def set_baseline(self, interval=60*10):
         logging.info("Starting baseline management at interval %s", interval)
 
-        eCO2_baseline, tvoc_baseline = None, None
+        e_co2_baseline, tvoc_baseline = None, None
 
         # read initial baseline from file
         if os.path.isfile(self.__baseline_filename):
             with open(self.__baseline_filename, "rb") as f:
                 data = pickle.load(f)
                 if "co2" in data:
-                    eCO2_baseline = data.get("co2")
+                    e_co2_baseline = data.get("co2")
                 if "tvoc" in data:
                     tvoc_baseline = data.get("tvoc")
 
-        if eCO2_baseline is not None and tvoc_baseline is not None:
+        if e_co2_baseline is not None and tvoc_baseline is not None:
             logging.info("Read baseline from file")
         else:
             logging.info("No baseline found, using defaults")
-            eCO2_baseline = 0x8c2e
+            e_co2_baseline = 0x8c2e
             tvoc_baseline = 0x8d90
 
-        logging.info("Setting baseline to eCO2=0x%x, TVOC=0x%x", eCO2_baseline, tvoc_baseline)
-        self.sgp30.set_iaq_baseline(eCO2_baseline, tvoc_baseline)
+        logging.info("Setting baseline to eCO2=0x%x, TVOC=0x%x", e_co2_baseline, tvoc_baseline)
+        self.sgp30.set_iaq_baseline(e_co2_baseline, tvoc_baseline)
 
         while not self.stop_requested:
             # write baseline to file
@@ -74,13 +74,12 @@ class GasReader:
         logging.info("Starting gas sensor calibration at interval %s", interval)
 
         while not self.stop_requested:
-            rhMg = self.blackboard.getHumidityInMg()
-            if rhMg is None:
+            rh_mg = self.blackboard.get_humidity_in_mg()
+            if rh_mg is None:
                 logging.info("No humidity reading (yet), cannot calibrate gas sensor")
             else:
                 # calibrate the gas sensor based on the humidity reading
-                self.sgp30.set_iaq_humidity(rhMg)
-                logging.debug("Calibrated gas sensor based on humidity reading (%s)", rhMg)
+                self.sgp30.set_iaq_humidity(rh_mg)
+                logging.debug("Calibrated gas sensor based on humidity reading (%s)", rh_mg)
                 
             self.stop_event.wait(interval)
-        

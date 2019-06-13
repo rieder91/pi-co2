@@ -2,9 +2,13 @@
 
 A small Python program that uses a Raspberry PI, [a SGP30 gas sensor](https://www.adafruit.com/product/3709) and [a HTU21D-f temperature sensor](https://www.adafruit.com/product/1899) to measure humidity, temperature, CO2 and TVOC. It exposes these measurements over HTTP in the Prometheus Exporter format so that you can easily store and view them.
 
+![Grafana Dashboard](doc/grafana.png "Grafana Dashboard")
+
 ## Wiring
 
-TODO
+(Since everything is I2C you basically need to connect everything that shares names).
+
+![Raspberry Pi Wiring](doc/wiring.png "Raspberry Pi Wiring")
 
 ## Running
 
@@ -32,7 +36,6 @@ The default port for the Promtheus HTTP server is 8000. A scrape configuration i
   - targets: [
     'raspberry-pi:8000'
   ]
-
 ```
 
 ## Flags

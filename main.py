@@ -1,4 +1,3 @@
-import time
 import threading
 import signal
 import logging
@@ -18,8 +17,8 @@ if options.v:
     log_level = logging.DEBUG
 
 if __name__ == "__main__":
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=log_level, datefmt="%H:%M:%S")
+    log_format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=log_format, level=log_level, datefmt="%H:%M:%S")
 
     blackboard = Blackboard()
 
