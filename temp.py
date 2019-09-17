@@ -26,7 +26,7 @@ class TemperatureReader:
         logging.info("Starting temperature and humidity measurements at interval %s", interval)
 
         while not self.stop_requested:
-            self.blackboard.set_temperature(self.htu21d.temperature + temp_offset)
+            self.blackboard.set_temperature(self.htu21d.temperature + self.temp_offset)
             self.blackboard.set_humidity_in_percent(self.htu21d.relative_humidity)
             logging.debug("Temperature and relative humidity measured")
             self.stop_event.wait(interval)
