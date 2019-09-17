@@ -10,6 +10,11 @@ from exporter import PrometheusExporter
 threads = []
 log_level = logging.INFO
 
+# in some environments the sensor itself heats up skewing the temperature measurement. this variable allows you to
+# counteract that. since the thermal output is constant a fixed offset is "good enough" for us (the sensor is not
+# that accurate anyhow)
+temp_offset = 0.0
+
 parser = ArgumentParser()
 parser.add_argument("-v", action="store_true")
 options = parser.parse_args()
@@ -23,7 +28,7 @@ if __name__ == "__main__":
     blackboard = Blackboard()
 
     gas = GasReader(blackboard)
-    temperature = TemperatureReader(blackboard)
+    temperature = TemperatureReader(blackboard, temp_offset=temp_offset)
     exporter = PrometheusExporter(blackboard)
 
     threads.append(threading.Thread(target=gas.measure, daemon=True))

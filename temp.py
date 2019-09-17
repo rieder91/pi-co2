@@ -6,11 +6,12 @@ from adafruit_htu21d import HTU21D
 
 
 class TemperatureReader:
-    def __init__(self, blackboard):
+    def __init__(self, blackboard, temp_offset):
         self.stop_requested = False
         self.stop_event = threading.Event()
 
         self.blackboard = blackboard
+        self.temp_offset = temp_offset
 
         # initialize the sensor
         i2c = busio.I2C(board.SCL, board.SDA)
@@ -25,7 +26,7 @@ class TemperatureReader:
         logging.info("Starting temperature and humidity measurements at interval %s", interval)
 
         while not self.stop_requested:
-            self.blackboard.set_temperature(self.htu21d.temperature)
+            self.blackboard.set_temperature(self.htu21d.temperature + temp_offset)
             self.blackboard.set_humidity_in_percent(self.htu21d.relative_humidity)
             logging.debug("Temperature and relative humidity measured")
             self.stop_event.wait(interval)
