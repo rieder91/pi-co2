@@ -53,6 +53,12 @@ class Blackboard:
     def get_humidity_in_percent(self):
         return self.storage.get("rhPercent")
 
+    def set_sound(self, value):
+        self.__set__("sound", value)
+
+    def get_sound(self):
+        return self.storage.get("sound")
+
     def dump(self):
         with self._lock:
             for key in self.storage:

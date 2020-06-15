@@ -14,6 +14,7 @@ class PrometheusExporter:
         self.temperature_gauge = Gauge("temperature_celsius", "Room temperature in degrees celsius")
         self.humidity_percent_gauge = Gauge("humidity_percent", "Relative Humidity in percent")
         self.humidity_mg_gauge = Gauge("humidity_mg", "Humidity in mg/m^3")
+        self.sound_gauge = Gauge("sound_dba", "Sound in dB(A)")
 
         self.co2_gauge = Gauge("co2", "CO2 in in ppm")
         self.tvoc_gauge = Gauge("tvoc", "Total volatile organic compound in ppm")
@@ -46,6 +47,10 @@ class PrometheusExporter:
             tvoc = self.blackboard.get_tvoc()
             if tvoc:
                 self.tvoc_gauge.set(tvoc)
+
+            dBA = self.blackboard.get_sound()
+            if dBA:
+                self.sound_gauge.set(dBA)
 
             logging.debug("Set prometheus gauges to current values")
 
