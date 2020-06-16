@@ -1,8 +1,9 @@
-import serial
-import re
-import time
-import threading
 import logging
+import re
+import threading
+
+import serial
+
 
 class SoundReader:
     def __init__(self, blackboard, serial_port):
@@ -29,26 +30,27 @@ class SoundReader:
             count = 0
             for i in range(10):
                 data = ser.read(64)
-                match  = re.search(b'\xA5\x0D', data)
+                match = re.search(b'\xA5\x0D', data)
                 if match is not None:
                     offset = match.start()
-                    if offset+3 < len(data):
+                    if offset + 3 < len(data):
                         # first byte
-                       v1 = data[offset+2]
-                       # second byte
-                       v2 = data[offset+3]
-                       # convert two hex bytes two a decimal number
-                       dbA =  (int((v1/16))*10 + int((v1%16)))*10
-                       dbA += (int((v2/16))*10 + int((v2%16)))*0.1
-                       value += dbA
-                       count += 1
+                        v1 = data[offset + 2]
+                        # second byte
+                        v2 = data[offset + 3]
+                        # convert two hex bytes two a decimal number
+                        db_a = (int((v1 / 16)) * 10 + int((v1 % 16))) * 10
+                        db_a += (int((v2 / 16)) * 10 + int((v2 % 16))) * 0.1
+                        value += db_a
+                        count += 1
                     else:
-                        logging.warn("Sound level value index out-of-bounds")
+                        logging.warning("Sound level value index out-of-bounds")
             ser.write(b'rec')
             ser.flush()
             if value != 0 and count != 0:
-                logging.debug("Sound level measured (%s)" % (value / count))
-                self.blackboard.set_sound(value / count)
+                avg = value / count
+                logging.debug("Sound level measured (%s)" % avg)
+                self.blackboard.set_sound(avg)
             else:
-                logging.warn("No sound measurement received")
+                logging.warning("No sound measurement received")
             self.stop_event.wait(interval)

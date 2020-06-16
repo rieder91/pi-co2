@@ -1,6 +1,6 @@
 # Raspberry Pi Air Quality Sensor with Prometheus Exporter
 
-A small Python program that uses a Raspberry PI, [a SGP30 gas sensor](https://www.adafruit.com/product/3709) and [a HTU21D-f temperature sensor](https://www.adafruit.com/product/1899) to measure humidity, temperature, CO2 and TVOC. It exposes these measurements over HTTP in the Prometheus Exporter format so that you can easily store and view them.
+A small Python program that uses a Raspberry PI, [a SGP30 gas sensor](https://www.adafruit.com/product/3709) and [a HTU21D-f temperature sensor](https://www.adafruit.com/product/1899) to measure humidity, temperature, CO2 and TVOC. If you connect a [PeakTech 8005 sound meter](https://www.peaktech.de/productdetail/kategorie/schallpegelmessgeraete/produkt/p-8005.html) using USB, it also exports those measurements. It exposes these measurements over HTTP in the Prometheus Exporter format so that you can easily store and view them.
 
 **Note: I exported the Grafana dashboard to ``doc/grafana-dashboard.json``, so you can import it straight away.**
 
@@ -11,6 +11,16 @@ A small Python program that uses a Raspberry PI, [a SGP30 gas sensor](https://ww
 (Since everything is I2C you basically need to connect everything that shares names).
 
 ![Raspberry Pi Wiring](doc/wiring.png "Raspberry Pi Wiring")
+
+## Sound Meter Support
+
+To export the sound measurements you need to:
+
+ * connect the sound meter using USB and power it on
+ * change the ``sound_serial_port`` in ``main.py``
+ * start the meter and configure it the way you want (fast/slow sampling, dB(A) or dB(C))
+
+This script exports the same value that is showed on the sound meter's display! 
 
 ## Running
 

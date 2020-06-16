@@ -48,9 +48,9 @@ class PrometheusExporter:
             if tvoc:
                 self.tvoc_gauge.set(tvoc)
 
-            dBA = self.blackboard.get_sound()
-            if dBA:
-                self.sound_gauge.set(dBA)
+            db_a = self.blackboard.get_sound()
+            if db_a:
+                self.sound_gauge.set(db_a)
 
             logging.debug("Set prometheus gauges to current values")
 

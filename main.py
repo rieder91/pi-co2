@@ -52,6 +52,9 @@ if __name__ == "__main__":
     def bail_out(*args):
         logging.info("Received SIGTERM")
         gas.stop()
+        temperature.stop()
+        sound.stop()
+        exporter.stop()
         logging.info("All threads stopped. Exiting")
         raise SystemExit(0)
 
@@ -63,4 +66,3 @@ if __name__ == "__main__":
             thread.join()
     except KeyboardInterrupt:
         bail_out()
-
