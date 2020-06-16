@@ -32,17 +32,23 @@ class SoundReader:
                 match  = re.search(b'\xA5\x0D', data)
                 if match is not None:
                     offset = match.start()
-                    # first byte
-                    v1 = data[offset+2]
-                    # second byte
-                    v2 = data[offset+3]
-                    # convert two hex bytes two a decimal number
-                    dbA =  (int((v1/16))*10 + int((v1%16)))*10
-                    dbA += (int((v2/16))*10 + int((v2%16)))*0.1
-                    value += dbA
-                    count += 1
+                    if offset+3 < len(data):
+                        # first byte
+                       v1 = data[offset+2]
+                       # second byte
+                       v2 = data[offset+3]
+                       # convert two hex bytes two a decimal number
+                       dbA =  (int((v1/16))*10 + int((v1%16)))*10
+                       dbA += (int((v2/16))*10 + int((v2%16)))*0.1
+                       value += dbA
+                       count += 1
+                    else:
+                        logging.warn("Sound level value index out-of-bounds")
             ser.write(b'rec')
             ser.flush()
-            logging.debug("Sound level measured (%s)" % (value / count))
-            self.blackboard.set_sound(value / count)
+            if value != 0 and count != 0:
+                logging.debug("Sound level measured (%s)" % (value / count))
+                self.blackboard.set_sound(value / count)
+            else:
+                logging.warn("No sound measurement received")
             self.stop_event.wait(interval)
